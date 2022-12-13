@@ -2,6 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
+from random import randint
 from flask import Flask, request, jsonify, url_for
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
@@ -37,7 +38,26 @@ def handle_hello():
 
 
     return jsonify(response_body), 200
+@app.route('/members/<int:member_id>', methods=['GET'])
+def get_member(member_id):
+    familyFamily=jackson_family.get_member(member_id)
+    return jsonify(familyFamily), 200
 
+@app.route("/members/<int:member_id>", methods=['DELETE'])
+def delete_member(member_id):
+    jackson_family.delete_member(member_id)
+    return jsonify("memberdeleted"), 200
+@app.route("/members", methods=["POST"])
+def add_member():
+    data = request.get_json()
+    if "first_name" not in data or data["first_name"] == "":
+        return jsonify({"message":"first_name is needed"})
+    if "age" not in data:
+        return jsonify({"message":"age is needed"})
+    if "lucky_numbers" not in data: 
+        return jsonify({"message":"first_name is needed"})
+    jackson_family.add_member(data)
+    return jsonify(data),200
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
